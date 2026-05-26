@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>/// FATAL_BREACH ///</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=VT323&display=swap');
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body { 
+            background-color: #000; 
+            color: #fff; 
+            font-family: 'VT323', monospace; 
+            height: 100vh; 
+            width: 100vw;
+            overflow: hidden; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            user-select: none; 
+            position: relative;
+        }
+
+        #bg-image { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background-image: url('2fc2731fbb89210ecb21e96e4a1fc9e5.jpg'); 
+            background-size: cover; background-position: center; 
+            opacity: 0; z-index: 1; 
+            filter: grayscale(100%) contrast(300%) brightness(0.05); 
+            transition: opacity 0.5s ease-in; 
+        }
+        
+        .vignette {
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: radial-gradient(circle, rgba(0,0,0,0) 5%, rgba(0,0,0,1) 90%);
+            z-index: 2; pointer-events: none;
+        }
+
+        .scanlines { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.5) 50%); 
+            background-size: 100% 4px; 
+            z-index: 10; pointer-events: none; 
+        }
+
+        #enter-screen { 
+            position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: #000; z-index: 50; 
+            display: flex; justify-content: center; align-items: center; 
+            cursor: pointer; transition: opacity 0.2s; 
+        }
+        .click-text { 
+            color: #fff; font-size: 2.5rem; letter-spacing: 15px; 
+            animation: flicker 0.05s infinite; text-shadow: 0 0 10px #ff0000;
+        }
+        @keyframes flicker { 0% { opacity: 0.1; } 50% { opacity: 1; } 100% { opacity: 0.1; } }
+
+        #main-content { 
+            display: none; width: 100%; max-width: 800px; padding: 20px; z-index: 5; position: relative; 
+        }
+        
+        .terminal-log { font-size: 1.5rem; margin-bottom: 15px; color: #777; text-transform: uppercase; line-height: 1.2; }
+        .upload-log { color: #ff0000; font-size: 1.4rem; margin-top: 20px; min-height: 60px; }
+        
+        .scan-data { display: flex; flex-direction: column; gap: 6px; border-left: 2px solid #333; padding-left: 15px; }
+        .scan-data p { font-size: 1.4rem; color: #555; margin: 0; display: flex; justify-content: space-between; }
+        
+        .label { color: #666; }
+        .resolved { color: #aaa; font-family: monospace; text-align: right; }
+        .danger { color: #ff0000; font-weight: bold; text-shadow: 0 0 8px #ff0000; }
+
+        /* ЖЕСТКИЙ ЧЕРНО-БЕЛО-КРАСНЫЙ ФИНАЛ */
+        #fatal-message {
+            display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+            z-index: 100; 
+            font-size: clamp(3rem, 8vw, 10rem); 
+            text-align: center; width: 100%; font-weight: bold; text-transform: uppercase;
+            line-height: 1; mix-blend-mode: normal; white-space: nowrap;
+        }
+        
+        .glitch-text { 
+            position: relative; 
+            display: inline-block; 
+            color: #ffffff; /* Белая основа */
+            /* Жирная черная обводка и красное свечение */
+            text-shadow: 
+                -3px -3px 0 #000, 3px -3px 0 #000, -3px 3px 0 #000, 3px 3px 0 #000, 
+                0 0 30px #ff0000, 0 0 50px #ff0000;
+            animation: text-color-flash 0.15s infinite, severe-glitch 0.1s infinite; 
+        }
+        
+        /* Мерцание цвета текста (белый -> красный -> черный) */
+        @keyframes text-color-flash {
+            0% { color: #ffffff; }
+            33% { color: #ff0000; }
+            66% { color: #000000; text-shadow: -3px -3px 0 #fff, 3px -3px 0 #fff, -3px 3px 0 #fff, 3px 3px 0 #fff, 0 0 30px #ff0000; }
+            100% { color: #ffffff; }
+        }
+
+        .glitch-text::before, .glitch-text::after { 
+            content: attr(data-text); position: absolute; top: 0; left: 0; width: 100%; height: 100%; 
+            background: transparent; 
+        }
+        
+        /* Красный разрыв */
+        .glitch-text::before { 
+            left: 8px; color: #ff0000; text-shadow: -4px 0 #000; 
+            clip-path: polygon(0 10%, 100% 10%, 100% 30%, 0 30%); 
+            animation: glitch-anim-1 0.05s infinite linear alternate-reverse; 
+        }
+        
+        /* Черно-белый разрыв */
+        .glitch-text::after { 
+            left: -8px; color: #000000; text-shadow: 4px 0 #ffffff; 
+            clip-path: polygon(0 70%, 100% 70%, 100% 90%, 0 90%); 
+            animation: glitch-anim-2 0.08s infinite linear alternate-reverse; 
+        }
+
+        @keyframes glitch-anim-1 { 0% { clip-path: inset(20% 0 80% 0); transform: translate(-10px, 5px); } 100% { clip-path: inset(10% 0 60% 0); transform: translate(10px, -5px); } }
+        @keyframes glitch-anim-2 { 0% { clip-path: inset(80% 0 5% 0); transform: translate(10px, -5px); } 100% { clip-path: inset(40% 0 30% 0); transform: translate(-10px, 5px); } }
+        @keyframes severe-glitch { 0% { transform: translate(0,0); } 20% { transform: translate(-8px, 8px); } 40% { transform: translate(8px, -8px); } 60% { transform: translate(-8px, -8px); } 80% { transform: translate(8px, 8px); } 100% { transform: translate(0,0); } }
+
+        /* Тряска экрана */
+        .shake { animation: screen-shake 0.1s infinite; }
+        @keyframes screen-shake { 0% { transform: translate(3px, 2px) rotate(0deg); } 10% { transform: translate(-2px, -3px) rotate(-1deg); } 20% { transform: translate(-4px, 0px) rotate(1deg); } 30% { transform: translate(0px, 3px) rotate(0deg); } 40% { transform: translate(2px, -2px) rotate(1deg); } 50% { transform: translate(-2px, 3px) rotate(-1deg); } 60% { transform: translate(-4px, 2px) rotate(0deg); } 70% { transform: translate(3px, 2px) rotate(-1deg); } 80% { transform: translate(-2px, -2px) rotate(1deg); } 90% { transform: translate(3px, 3px) rotate(0deg); } 100% { transform: translate(2px, -3px) rotate(-1deg); } }
+    </style>
+</head>
+<body>
+
+    <div class="scanlines"></div>
+    <div class="vignette"></div>
+    <div id="bg-image"></div>
+
+    <div id="enter-screen">
+        <div class="click-text">[ PRESS TO DIE ]</div>
+    </div>
+
+    <div id="main-content">
+        <div class="terminal-log" id="log-text"></div>
+
+        <div class="scan-data">
+            <p><span class="label">IPv4_TARGET:</span> <span id="ip" class="resolved">0x000000</span></p>
+            <p><span class="label">GEOLOCATION:</span> <span id="loc" class="resolved">0x000000</span></p>
+            <p><span class="label">BATTERY_LEVEL:</span> <span id="bat" class="resolved">0x000000</span></p>
+            <p><span class="label">HARDWARE_GPU:</span> <span id="gpu" class="resolved">0x000000</span></p>
+            <p><span class="label">SESSION_HISTORY:</span> <span id="hist" class="resolved">0x000000</span></p>
+        </div>
+
+        <div class="upload-log" id="upload-text"></div>
+    </div>
+
+    <div id="fatal-message">
+        <span class="glitch-text" data-text="ТВОЯ ЖИЗНЬ У y0uy0uy0u">ТВОЯ ЖИЗНЬ У y0uy0uy0u</span>
+    </div>
+
+    <script>
+        // Сбор данных
+        let realIp = "UNKNOWN", realLoc = "UNKNOWN";
+        fetch('https://get.geojs.io/v1/ip/geo.json').then(res => res.json()).then(data => {
+            if (data.ip) realIp = data.ip;
+            if (data.city && data.country) realLoc = `${data.city}, ${data.country}`;
+        }).catch(() => {});
+
+        let realGpu = "UNKNOWN_GPU";
+        try {
+            const canvas = document.createElement('canvas');
+            const gl = canvas.getContext('webgl') || canvas.getContext('experimental-webgl');
+            if (gl) realGpu = gl.getParameter(gl.getExtension('WEBGL_debug_renderer_info').UNMASKED_RENDERER_WEBGL).split('Direct3D')[0].trim();
+        } catch(e) {}
+
+        let realBat = "UNKNOWN";
+        if (navigator.getBattery) {
+            navigator.getBattery().then(b => { realBat = Math.round(b.level * 100) + "% (DRAINING...)"; });
+        }
+
+        const realHist = `${history.length} SAVED SESSIONS`;
+
+        // Генератор жуткого звука (Web Audio API)
+        function startCreepyAudio() {
+            const ctx = new (window.AudioContext || window.webkitAudioContext)();
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+            
+            osc.type = 'sawtooth'; 
+            osc.frequency.setValueAtTime(35, ctx.currentTime); 
+            osc.frequency.exponentialRampToValueAtTime(130, ctx.currentTime + 5); 
+            
+            gain.gain.setValueAtTime(0, ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.9, ctx.currentTime + 3); 
+            
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+            osc.start();
+            return { osc, gain, ctx };
+        }
+
+        function typeWriter(elementId, text, speed, callback) {
+            let i = 0;
+            document.getElementById(elementId).innerHTML = "";
+            function type() {
+                if (i < text.length) {
+                    document.getElementById(elementId).innerHTML += text.charAt(i) === '\n' ? '<br>' : text.charAt(i);
+                    i++;
+                    setTimeout(type, speed);
+                } else if (callback) callback();
+            }
+            type();
+        }
+
+        document.getElementById('enter-screen').addEventListener('click', function() {
+            this.style.display = 'none';
+            document.getElementById('bg-image').style.opacity = '0.4';
+            document.getElementById('main-content').style.display = 'block';
+
+            // Врубаем психологическое давление звуком
+            const audio = startCreepyAudio();
+
+            // Печатаем логи
+            const logs = ">>> SYSTEM OVERRIDE INITIATED\n>>> BYPASSING FIREWALL... OK\n>>> ROOT ACCESS GRANTED";
+            typeWriter("log-text", logs, 20, () => {
+                
+                // Выводим данные резко, как удар
+                setTimeout(() => { document.getElementById("ip").innerText = realIp; document.getElementById("ip").className = "resolved danger"; }, 500);
+                setTimeout(() => { document.getElementById("loc").innerText = realLoc; document.getElementById("loc").className = "resolved danger"; }, 1000);
+                setTimeout(() => { document.getElementById("bat").innerText = realBat; document.getElementById("bat").className = "resolved danger"; }, 1500);
+                setTimeout(() => { document.getElementById("gpu").innerText = realGpu; document.getElementById("gpu").className = "resolved danger"; }, 2000);
+                setTimeout(() => { document.getElementById("hist").innerText = realHist; document.getElementById("hist").className = "resolved danger"; }, 2500);
+
+                // Фейковая загрузка файлов с компа
+                setTimeout(() => {
+                    const uploadLogs = [
+                        "UPLOADING: C:\\Users\\Default\\Documents\\passwords.txt ... [DONE]",
+                        "UPLOADING: C:\\Users\\Default\\Pictures\\Camera Roll ... [DONE]",
+                        "UPLOADING: %APPDATA%\\Discord\\Local Storage ... [DONE]"
+                    ];
+                    let uDelay = 0;
+                    uploadLogs.forEach(txt => {
+                        setTimeout(() => { document.getElementById("upload-text").innerHTML += txt + "<br>"; }, uDelay);
+                        uDelay += 600;
+                    });
+                }, 3000);
+
+                // ФИНАЛЬНЫЙ СКРИМЕР
+                setTimeout(() => {
+                    document.getElementById('main-content').style.display = 'none'; 
+                    document.getElementById('bg-image').style.filter = 'grayscale(100%) contrast(500%) brightness(0.08)'; 
+                    document.getElementById('fatal-message').style.display = 'block'; 
+                    document.body.classList.add('shake'); // Врубаем жесткую тряску экрана
+                    
+                    // Звук превращается в писк
+                    audio.osc.frequency.setValueAtTime(1000, audio.ctx.currentTime);
+                    audio.osc.type = 'square';
+                }, 5500);
+            });
+        });
+    </script>
+</body>
+</html>
